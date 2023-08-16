@@ -1,11 +1,11 @@
-from mpl_toolkits.mplot3d import Axes3D
-from sklearn.preprocessing import StandardScaler
-import matplotlib.pyplot as plt
-import numpy as np
+#from mpl_toolkits.mplot3d import Axes3D
+#from sklearn.preprocessing import StandardScaler
+#import matplotlib.pyplot as plt
+#import numpy as np
 import os
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.decomposition import PCA
+#from sklearn.decomposition import PCA
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score
 import tensorflow as tf
@@ -191,9 +191,9 @@ def main():
         dataframe = dataframe.drop([i], axis=1)
 
     train, test = preProcess(dataframe)
+    classes = ["0", "2", "3", "4.0"]
     #decisionTree(train, test)
     dttrain, dttest = decisionTree(train, test)
-    classes = ["0", "2", "3", "4.0"]
     neuralNetwork(train, dttrain, test, dttest, classes)
 
 if __name__ == "__main__":
