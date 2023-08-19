@@ -40,6 +40,21 @@ def neuralNetwork(X_train, dttrain, y_train, dttest, classes):
 
     model.fit(X_train, dttrain, epochs=10, verbose=0)
     
-    loss, accuracy = model.evaluate(X_train, dttrain, verbose=0)
-    loss, accuracy = model.evaluate(y_train, dttest, verbose=0)
-    return accuracy
+    loss, accuracyTrain = model.evaluate(X_train, dttrain, verbose=0)
+    loss, accuracyTest = model.evaluate(y_train, dttest, verbose=0)
+    return accuracyTest
+
+def neuralNetwork1(X_train, dttrain, y_train, dttest, classes, model):
+    for i in X_train.columns:
+        X_train[i] = X_train[i].astype('int32')
+    for i in y_train.columns:
+        y_train[i] = y_train[i].astype('int32')
+
+    dttrain = transform_output_nominal_class_into_one_hot_encoding(dttrain, classes)
+    dttest = transform_output_nominal_class_into_one_hot_encoding(dttest, classes)
+
+    model.fit(X_train, dttrain, epochs=10, verbose=0)
+    
+    loss, accuracyTrain = model.evaluate(X_train, dttrain, verbose=0)
+    loss, accuracyTest = model.evaluate(y_train, dttest, verbose=0)
+    return accuracyTest

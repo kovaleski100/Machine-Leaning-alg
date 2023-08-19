@@ -15,3 +15,10 @@ def decisionTree(X_train, y_train):
     accuracy = accuracy_score(dataframeGPAtest, y_pred)
     #print("Acurácia:", accuracy)
     return dataframeGPAtrain, dataframeGPAtest, accuracy
+
+def decisionTreeK(X_train,dttrain, y_train, dttest, DT):
+    DT.fit(X_train, dttrain)
+    y_pred = DT.predict(y_train)
+
+    accuracy = accuracy_score(dttest, y_pred)
+    return accuracy
