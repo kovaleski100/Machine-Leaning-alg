@@ -9,30 +9,49 @@ from dt import decisionTree, decisionTreeK
 import math as mt
 import numpy as np
 from sklearn.linear_model import LinearRegression
+import matplotlib.pyplot as plt
 
 def confusion_matrix(y_true, y_pred, num_classes):
     matrix = np.zeros((num_classes, num_classes), dtype=int)
-    #print(y_pred, y_true)
+    print(y_true, y_pred)
+    count = 0
     for i in range(len(y_true)):
-        true_class = y_true[i]
-        pred_class = y_pred[i]
+        true_class = int(float(y_true[i])) - 1
+        pred_class = int(float(y_pred[i])) - 1
+
+        if(true_class<0):
+            true_class = 0
+        if(pred_class<0):
+            pred_class = 0
         
-        if int(float(true_class)) < num_classes and int(float(pred_class)) < num_classes:
+        if int(float(true_class)) < num_classes and int(float(pred_class))   < num_classes:
             matrix[int(float(true_class)), int(float(pred_class))] += 1
+        else:
+            print(true_class, pred_class)
+            count = count + 1
+    print(count)
+    print()
+    print()
     return matrix
 
 def plot_confusion_matrix(matrix, class_names):
-    print("Confusion Matrix:")
-    for i, row in enumerate(matrix):
-        row_str = " | ".join([f"{count:2d}" for count in row])
-        print(row_str)
-        if i < len(matrix) - 1:
-            print("-" * (4 * len(row) - 1))
+    plt.figure(figsize=(len(class_names), len(class_names)+1))
+    plt.imshow(matrix, interpolation='nearest', cmap=plt.cm.Blues)
+    plt.title("Confusion Matrix")
+    plt.colorbar()
+    tick_marks = np.arange(len(class_names))
+    plt.xticks(tick_marks, class_names, rotation=45)
+    plt.yticks(tick_marks, class_names)
     
-    print("\nClass Names:")
-    class_names_str = " | ".join(class_names)
-    print(class_names_str)
-# Resto do código...
+    for i in range(len(class_names)):
+        for j in range(len(class_names)):
+            plt.text(j, i, str(matrix[i, j]), ha="center", va="center", color="white" if matrix[i, j] > matrix.max() / 2 else "black")
+    
+    plt.xlabel("Predicted Label")
+    plt.ylabel("True Label")
+    plt.tight_layout()
+    plt.show()
+
 def linearRegression(X_train, y_train, X_test, dttest,model):
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
@@ -44,19 +63,20 @@ def linearRegression(X_train, y_train, X_test, dttest,model):
 def kfold_cross_validation(X, y, classes, y_train, dttest, n_splits=5, epochs=10):
     num_samples = len(X)
     fold_size = num_samples // n_splits
-    accuracies = []
 
     num_classes = len(classes)
 
     model = buildModel(X.shape[1], num_classes)
     accByModel = []
+    accuracyBymodelTrain  = []
     dt = DecisionTreeClassifier()
     nB = GaussianNB()
     LR = LinearRegression()
     mConf = []
     class_mapping = {class_name: index for index, class_name in enumerate(classes)}
     
-    for modelI in range(3):
+    for modelI in range(4):
+        accuracies = []
         for i in range(n_splits):
             start = i * fold_size
             end = (i + 1) * fold_size if i < n_splits - 1 else num_samples
@@ -72,41 +92,41 @@ def kfold_cross_validation(X, y, classes, y_train, dttest, n_splits=5, epochs=10
             if(modelI == 0):
                 accuracy = decisionTreeK(X_train, dttrain, X_test, dttest_mapped, dt)
             elif(modelI == 2):
-                #accuracy = neuralNetwork1(X_train, dttrain, X_test, dttestK, classes, model)
                 accuracy = linearRegression(X_train, dttrain, X_test, dttest_mapped, LR)
-            else:
+            elif(modelI == 1):
                 accuracy = naiveBayes(X_train, X_test, dttrain, dttest_mapped, nB)
+            else:
+                accuracy = neuralNetwork1(X_train, dttrain, X_test, dttestK, classes, model)
             accuracies.append(accuracy)
+        accuracyBymodelTrain.append(accuracies)
             
         accuracyTest = 0
+        dttest_mapped = [class_mapping.get(class_name, -1) for class_name in dttest]
         if(modelI == 0):
             y_pred = dt.predict(y_train)
-            accuracyTest = accuracy_score(dttest, y_pred)
+            accuracyTest = accuracy_score(dttest_mapped, y_pred)
             mConf.append(confusion_matrix(dttest_mapped, y_pred, len(classes)))
         elif(modelI == 2):
-            # y_traink = y_train
-            # for i in y_traink.columns:
-            #     y_traink[i] = y_traink[i].astype('int32')
-            # y_pred = model.predict(y_traink)
-            # dttest_encoded = transform_output_nominal_class_into_one_hot_encoding(dttest, classes)
-            # print(dttest_mapped)
-            # loss, accuracyTest = model.evaluate(y_traink, dttest_encoded, verbose=0)
-            
-            #mConf.append(confusion_matrix(dttest_encoded, y_pred, len(classes)))
             y_pred = LR.predict(y_train)
             y_predLR = y_pred
             for i in range(len(y_pred)):
                 y_predLR[i] = int(y_pred[i])
-            accuracyTest = accuracy_score(dttest, y_pred)
+            accuracyTest = accuracy_score(dttest_mapped, y_pred)
+            mConf.append(confusion_matrix(dttest_mapped, y_pred, len(classes)))
+        elif(modelI == 1):
+            y_pred = nB.predict(y_train)
+            accuracyTest = accuracy_score(dttest_mapped, y_pred)
             mConf.append(confusion_matrix(dttest_mapped, y_pred, len(classes)))
         else:
-            y_pred = nB.predict(y_train)
-            accuracyTest = accuracy_score(dttest, y_pred)
-            mConf.append(confusion_matrix(dttest_mapped, y_pred, len(classes)))
-            
+            y_traink = y_train
+            for i in y_traink.columns:
+                y_traink[i] = y_traink[i].astype('int32')
+            y_pred = model.predict(y_traink)
+            dttest_encoded = transform_output_nominal_class_into_one_hot_encoding(dttest, classes)
+            loss, accuracyTest = model.evaluate(y_traink, dttest_encoded, verbose=0)
         accByModel.append(accuracyTest)
         
-    return accByModel, mConf
+    return accByModel, accuracyBymodelTrain, mConf
 
 
 def main():
@@ -123,7 +143,7 @@ def main():
 
         #print(test, dttest)
 
-        accNN, mconf = kfold_cross_validation(train, dttrain, classes, test, dttest, n_splits=5)
+        accNN, accuracyBymodelTrain ,mconf = kfold_cross_validation(train, dttrain, classes, test, dttest, n_splits=5)
         #accNN1 = neuralNetwork(train, dttrain, test, dttest, classes)
         #accNB = naiveBayes(train, test, dttrain, dttest)
         #print(seed/999*100)
@@ -131,10 +151,17 @@ def main():
         print("Acc dos modelos")
         print("Decision Tree:", accNN[0], "Naive Bayes:", accNN[2], "Neural Network:", accNN[1])
 
+
+        print(accuracyBymodelTrain)
+
         for i, conf_matrix in enumerate(mconf):
+            print("acc final", accNN[i])
             print("Confusion Matrix for Model", i)
             plot_confusion_matrix(conf_matrix, classes)
-            print(accNN[i])
+            print("acc media",np.mean(accuracyBymodelTrain[i]))
+            print("desvio padrao",np.std(accuracyBymodelTrain[i]))
+            print()
+        print("acc final", accNN[3])
         #print(accNB)
         #dic[seed] = mt.pow(accDT * accNN * accNB, 1/3)
     # bestToModel = (0,0)

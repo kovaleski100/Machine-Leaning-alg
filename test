@@ -1,0 +1,41 @@
+Função confusion_matrix(y_true, y_pred, num_classes)
+    Inicialize uma matriz de confusão com zeros (num_classes x num_classes)
+    Para cada exemplo de y_true e y_pred
+        Incremente o valor correspondente na matriz de confusão
+    Retorne a matriz de confusão
+
+Função linearRegression(X_train, y_train, X_test, LR)
+    Crie um modelo de regressão linear LR
+    Treine o modelo com X_train e y_train
+    Faça previsões usando o modelo treinado em X_test
+    Retorne as previsões y_pred
+
+Função kfold_cross_validation(X, y, classes, y_train, dttest, n_splits, epochs)
+    num_samples = tamanho de X
+    fold_size = num_samples dividido por n_splits
+    num_classes = tamanho de classes
+    
+    Inicialize uma lista vazia accByModel para armazenar as acurácias dos modelos
+    Inicialize uma lista vazia accuracyBymodelTrain para armazenar as acurácias de treino dos modelos
+    Crie modelos DecisionTreeClassifier dt, GaussianNB nB e LinearRegression LR
+    Inicialize uma lista vazia mConf para armazenar as matrizes de confusão
+    
+    Crie um dicionário class_mapping para mapear classes para índices
+    
+    Para cada modeloI de 0 a 2
+        Inicialize uma lista vazia accuracies para armazenar as acurácias de cada fold
+        Para cada fold de 0 a n_splits - 1
+            Calcule os índices de início (start) e fim (end) para o fold atual
+            Divida os conjuntos de dados em treino e teste com base nos índices
+            Calcule as previsões do modelo atual para o fold atual (usando o modelo correspondente)
+            Calcule a acurácia para esse fold e adicione à lista accuracies
+        
+        Adicione a lista accuracies à lista accuracyBymodelTrain
+        
+        Calcule a acurácia de teste para o modelo atual (usando o modelo correspondente)
+        Calcule a matriz de confusão para o modelo atual
+        
+        Adicione a acurácia de teste à lista accByModel
+        Adicione a matriz de confusão à lista mConf
+    
+    Retorne accByModel, accuracyBymodelTrain, mConf
