@@ -13,8 +13,6 @@ import matplotlib.pyplot as plt
 
 def confusion_matrix(y_true, y_pred, num_classes):
     matrix = np.zeros((num_classes, num_classes), dtype=int)
-    print(y_true, y_pred)
-    count = 0
     for i in range(len(y_true)):
         true_class = int(float(y_true[i])) - 1
         pred_class = int(float(y_pred[i])) - 1
@@ -26,12 +24,6 @@ def confusion_matrix(y_true, y_pred, num_classes):
         
         if int(float(true_class)) < num_classes and int(float(pred_class))   < num_classes:
             matrix[int(float(true_class)), int(float(pred_class))] += 1
-        else:
-            print(true_class, pred_class)
-            count = count + 1
-    print(count)
-    print()
-    print()
     return matrix
 
 def plot_confusion_matrix(matrix, class_names):
@@ -141,18 +133,11 @@ def main():
         classes = ["0", "2", "3", "4.0"]
         dttrain, dttest, accDT = decisionTree(train, test)
 
-        #print(test, dttest)
-
         accNN, accuracyBymodelTrain ,mconf = kfold_cross_validation(train, dttrain, classes, test, dttest, n_splits=5)
-        #accNN1 = neuralNetwork(train, dttrain, test, dttest, classes)
-        #accNB = naiveBayes(train, test, dttrain, dttest)
-        #print(seed/999*100)
 
         print("Acc dos modelos")
         print("Decision Tree:", accNN[0], "Naive Bayes:", accNN[2], "Neural Network:", accNN[1])
 
-
-        print(accuracyBymodelTrain)
 
         for i, conf_matrix in enumerate(mconf):
             print("acc final", accNN[i])
@@ -162,15 +147,6 @@ def main():
             print("desvio padrao",np.std(accuracyBymodelTrain[i]))
             print()
         print("acc final", accNN[3])
-        #print(accNB)
-        #dic[seed] = mt.pow(accDT * accNN * accNB, 1/3)
-    # bestToModel = (0,0)
-    # for i in dic:
-    #     if(dic[i] > bestToModel[1]):
-    #         bestToModel = (i,dic[i])
-            #bestToModel[j][0] = i
-
-    # print(bestToModel)
 
 if __name__ == "__main__":
     main()

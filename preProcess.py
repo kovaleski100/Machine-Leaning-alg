@@ -49,8 +49,6 @@ def readFiles(dirlist, filesList):
                 dataframeList.append(pd.read_csv(filepath))
     tabelaco = pd.merge(dataframeList[0], dataframeList[1], on="uid", how="inner")
     dataframe = pd.DataFrame(tabelaco)
-    dataframe.info()
-    dataframe.describe()
     dataframe = dropsColumns(dataframe)
     return dataframe
 
@@ -83,7 +81,5 @@ def preProcess(dataframe, seed):
     for i in range(1, len(colluns)):
         dataframe = changeValueQ1(dataframe, colluns[i])
     dataframe = convertGrades(dataframe, " gpa 13s")
-    dataframe.info()
-    dataframe.describe()
     X_train,  y_train, = train_test_split(dataframe, test_size=0.2, random_state=seed)
     return X_train, y_train
